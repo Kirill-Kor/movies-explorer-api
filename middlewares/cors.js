@@ -1,10 +1,7 @@
 const allowedCors = [
-  'https://kirkors.mesto.nomoredomains.work',
-  'http://kirkors.mesto.nomoredomains.work',
   'http://localhost:3000',
 ];
 
-// eslint-disable-next-line consistent-return
 module.exports = (req, res, next) => {
   const { origin } = req.headers;
   const { method } = req;
@@ -23,4 +20,5 @@ module.exports = (req, res, next) => {
   }
 
   next();
+  return res.end();
 };

@@ -1,7 +1,10 @@
+const { NOT_FOUND_STATUS_CODE } = require('../utils/errors');
+
 class NotFoundError extends Error {
-  constructor(code, message) {
+  constructor(message) {
     super(message);
-    this.statusCode = code;
+    this.name = 'NotFoundError';
+    this.code = NOT_FOUND_STATUS_CODE;
   }
 }
 

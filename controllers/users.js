@@ -3,27 +3,25 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const {
-  NOT_FOUND_STATUS_CODE,
   NOT_FOUND_USER_MESSAGE,
-  AUTH_ALREADY_EXISTS_CODE,
-  AUTH_ALREADY_EXISTS_MESSAGE,
-  AUTH_ERROR_CODE,
+  ALREADY_EXISTS_MESSAGE,
   AUTH_INCORRECT_DATA_MESSAGE,
-  INCORRECT_DATA_ERROR_CODE,
   INCORRECT_DATA_MESSAGE,
 
 } = require('../utils/errors');
 
 const NotFoundError = require('../errors/NotFoundError');
 const AuthError = require('../errors/AuthError');
+const BadRequestError = require('../errors/BadRequestError');
+const ConflictError = require('../errors/ConflictError');
 
-const { JWT_SECRET = 'dev-key' } = process.env;
+const { JWT_SECRET } = require('../utils/config');
 
 const getUserInfo = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
     if (user === null) {
-      throw new NotFoundError(NOT_FOUND_STATUS_CODE, NOT_FOUND_USER_MESSAGE);
+      throw new NotFoundError(NOT_FOUND_USER_MESSAGE);
     } else res.send(user);
   } catch (error) {
     next(error);
@@ -52,9 +50,9 @@ const createUser = async (req, res, next) => {
         })
         .catch((error) => {
           if (error.code === 11000) {
-            next(new AuthError(AUTH_ALREADY_EXISTS_CODE, AUTH_ALREADY_EXISTS_MESSAGE));
+            next(new ConflictError(ALREADY_EXISTS_MESSAGE));
           } else if (error.name === 'ValidationError') {
-            next(new Error(INCORRECT_DATA_ERROR_CODE, INCORRECT_DATA_MESSAGE));
+            next(new BadRequestError(INCORRECT_DATA_MESSAGE));
           } else next(error);
         });
     })
@@ -66,11 +64,11 @@ const login = async (req, res, next) => {
 
   User.findOne({ email }).select('password')
     .then((user) => {
-      if (user === null) throw new AuthError(AUTH_ERROR_CODE, AUTH_INCORRECT_DATA_MESSAGE);
+      if (user === null) throw new AuthError(AUTH_INCORRECT_DATA_MESSAGE);
       else {
         bcrypt.compare(password, user.password)
           .then((matched) => {
-            if (!matched) throw new AuthError(AUTH_ERROR_CODE, AUTH_INCORRECT_DATA_MESSAGE);
+            if (!matched) throw new AuthError(AUTH_INCORRECT_DATA_MESSAGE);
             const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
             res.send({ token });
           })
@@ -92,11 +90,11 @@ const patchUserInfo = async (req, res, next) => {
       },
     );
     if (user === null) {
-      throw new NotFoundError(NOT_FOUND_STATUS_CODE, NOT_FOUND_USER_MESSAGE);
+      throw new NotFoundError(NOT_FOUND_USER_MESSAGE);
     } else res.send(user);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      next(new Error(INCORRECT_DATA_ERROR_CODE, INCORRECT_DATA_MESSAGE));
+      next(new BadRequestError(INCORRECT_DATA_MESSAGE));
     } else next(error);
   }
 };
