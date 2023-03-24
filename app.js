@@ -25,6 +25,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(requestLogger);
 app.use(limiter);
 
+
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi
@@ -50,7 +51,7 @@ app.post('/signin', celebrate({
 app.use('/users', auth, usersRouter);
 app.use('/movies', auth, moviesRouter);
 
-app.use('*', auth, (req, res, next) => {
+app.use('*', (req, res, next) => {
   next(new NotFoundError(NOT_FOUND_PAGE));
 });
 

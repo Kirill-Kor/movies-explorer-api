@@ -9,8 +9,7 @@ const errorHandler = (error, req, res, next) => {
 
   const message = statusCode === DEFAULT_ERROR ? DEFAULT_ERROR_MESSAGE : error.message;
 
-  res.status(statusCode).send({ message });
-  next();
+  return res.status(statusCode).send({ message });
 };
 
 module.exports = errorHandler;
