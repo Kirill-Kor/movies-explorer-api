@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { Joi, celebrate, errors } = require('celebrate');
 const helmet = require('helmet');
+const cors = require('./middlewares/cors');
 const limiter = require('./middlewares/limiter');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const usersRouter = require('./routes/users');
@@ -25,6 +26,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(requestLogger);
 app.use(limiter);
 
+app.use(cors);
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
@@ -51,7 +53,7 @@ app.post('/signin', celebrate({
 app.use('/users', auth, usersRouter);
 app.use('/movies', auth, moviesRouter);
 
-app.use('*', (req, res, next) => {
+app.use('*', auth, (req, res, next) => {
   next(new NotFoundError(NOT_FOUND_PAGE));
 });
 
