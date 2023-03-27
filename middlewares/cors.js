@@ -1,6 +1,8 @@
 const allowedCors = [
   'http://localhost:3000',
   'https://localhost:3000',
+  'http://kirkor.movies-exp.nomoredomains.work',
+  'https://kirkor.movies-exp.nomoredomains.work',
   'localhost:3000',
 ];
 
