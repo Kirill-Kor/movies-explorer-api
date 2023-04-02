@@ -93,7 +93,10 @@ const patchUserInfo = async (req, res, next) => {
       throw new NotFoundError(NOT_FOUND_USER_MESSAGE);
     } else res.send(user);
   } catch (error) {
-    if (error.name === 'ValidationError') {
+    if (error.code === 11000) {
+      next(new ConflictError(ALREADY_EXISTS_MESSAGE));
+    }
+    else if (error.name === 'ValidationError') {
       next(new BadRequestError(INCORRECT_DATA_MESSAGE));
     } else next(error);
   }
